@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.UserDto;
+import com.online.examination.entity.Configuration;
 import com.online.examination.entity.User;
 import com.online.examination.exception.AlreadyExistException;
 import com.online.examination.exception.InactiveUserException;
@@ -15,13 +16,21 @@ import com.online.examination.exception.InvalidArgumentException;
 import com.online.examination.exception.InvalidPasswordException;
 import com.online.examination.exception.UserNotFoundException;
 import com.online.examination.repository.UserRepo;
+import com.online.examination.service.ConfigurationService;
 import com.online.examination.service.UserService;
+import com.online.examination.utility.MailUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepo userRepo;
+	
+	@Autowired
+	private ConfigurationService configurationService;
+	
+	@Autowired
+	private MailUtils mailUtils;
 
 	@Override
 	public UserDto saveUser(UserDto dto) {
@@ -31,7 +40,9 @@ public class UserServiceImpl implements UserService {
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 		User user = userRepo.save(mapper.convertValue(dto, User.class));
-
+		
+		this.activateUser(user);
+		
 		return mapper.convertValue(user, UserDto.class);
 	}
 	
@@ -84,6 +95,22 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-	
+	private void activateUser(User user) {
+		Configuration configuration = configurationService.getConfiguration();
+		if (ObjectUtils.isNotEmpty(configuration)) {
+		    switch (configuration.getActivationMode()) {
+		        case EMAIL_OTP:
+		        	mailUtils.sendEmail(user.getEmail(), "Welcome! Complete Your Registration with Our Activation Link", mailUtils.activationMail(user));
+		            break;
+		        case MOBILE_OTP:
+		            // send mobile link
+		            break;
+		        default:
+		            // do nothing
+		            break;
+		    }
+		}
+
+	}
 
 }
