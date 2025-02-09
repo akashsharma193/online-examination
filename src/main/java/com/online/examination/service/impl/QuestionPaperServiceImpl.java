@@ -1,6 +1,8 @@
 package com.online.examination.service.impl;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,8 +46,11 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		List<QuestionPaper> questionPaperList = questionPaperRepo.findByOrgCodeAndBatch(dto.getOrgCode(),
 				dto.getBatch());
 		if (ObjectUtils.isNotEmpty(questionPaperList)) {
+			LocalDateTime localDateTime = LocalDateTime.now();
+			ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
+			ZonedDateTime istZonedDateTime = localDateTime.atZone(istZoneId);
 			for (QuestionPaper questionPaper : questionPaperList) {
-				if (isTimeBetween(LocalDateTime.now(), questionPaper.getStratTime(), questionPaper.getEndTime())) {
+				if (isTimeBetween(istZonedDateTime.toLocalDateTime(), questionPaper.getStratTime(), questionPaper.getEndTime())) {
 					dataList.add(convertEntityIntoDto(questionPaper));
 				}
 			}

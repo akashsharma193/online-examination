@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 			throw new InvalidArgumentException();
 		}
 		
-		User user = userRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
+		User user = userRepo.findByMobileOrEmail(dto.getEmail(), dto.getEmail());
 		if (ObjectUtils.isEmpty(user)) {
 			throw new UserNotFoundException();
 		}
