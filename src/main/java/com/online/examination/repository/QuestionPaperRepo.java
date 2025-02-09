@@ -10,4 +10,6 @@ public interface QuestionPaperRepo extends JpaRepository<QuestionPaper, Long>{
 
 	List<QuestionPaper> findByOrgCodeAndBatch(String orgCode, String batch);
 
+	QuestionPaper findByQuestionId(String questionId);
+
 }

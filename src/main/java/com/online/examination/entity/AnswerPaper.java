@@ -16,9 +16,9 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @Entity
-@Table(name = "questionpaper")
+@Table(name = "answerpaper")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuestionPaper {
+public class AnswerPaper {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +36,8 @@ public class QuestionPaper {
 	String batch;
 	
 	String questionId;
+	
+	String userId;
 
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
 	LocalDateTime stratTime;
@@ -43,6 +45,4 @@ public class QuestionPaper {
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
 	LocalDateTime endTime;
 	
-	Boolean isActive;
-
 }
