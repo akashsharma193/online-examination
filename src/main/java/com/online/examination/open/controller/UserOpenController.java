@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.online.examination.dto.UserDto;
+import com.online.examination.response.Response;
 import com.online.examination.service.UserService;
 
 @CrossOrigin
@@ -31,9 +34,17 @@ public class UserOpenController {
         headers.setContentType(MediaType.TEXT_HTML);
 
         return new ResponseEntity<>(htmlContent, headers, HttpStatus.OK);
-//		Response response = new Response();
-//		response.succeed();
-//		response.setData(userService.forceLogOut(userId));
-//		return ResponseEntity.ok().body(response);
+	}
+	
+	@GetMapping("activateUser/{userId}")
+	public ResponseEntity<String> activateUser(@PathVariable String userId) {
+		String result = userService.activateUser(userId);
+
+		String htmlContent = "<html><body><h1>" + result + "</h1></body></html>";
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.TEXT_HTML);
+
+		return new ResponseEntity<>(htmlContent, headers, HttpStatus.OK);
 	}
 }

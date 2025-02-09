@@ -18,4 +18,6 @@ public interface UserService {
 
 	String forceLogOut(String userId, String sessionId);
 
+	String activateUser(String userId);
+
 }
