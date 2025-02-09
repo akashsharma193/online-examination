@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.online.examination.entity.DeviceSession;
 import com.online.examination.entity.ExceptionEntity;
 import com.online.examination.entity.User;
 import com.online.examination.repository.ExceptionRepository;
@@ -29,6 +30,15 @@ public class MailUtils {
 
 	@Value("${email.password}")
 	private String password;
+	
+	@Value("${online-examination.app.name}")
+	private String appName;
+	
+	@Value("${online-examination.base.url}")
+	private String baseUrl;
+	
+	@Value("${online-examination.contact.eamil}")
+	private String contactEmail;
 	
 	@Autowired
 	private ExceptionRepository exceptionRepository;
@@ -84,7 +94,21 @@ public class MailUtils {
 				+ "\r\n"
 				+ "Best regards,\r\n[Your Company Name] Team";
 		
-		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", "Online-Examination").replace("[Support Email or Contact Information]", "kshsarswat@gmail.com");
+		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", this.appName).replace("[Support Email or Contact Information]", this.contactEmail);
+		return mail;
+	}
+	
+	public String logoutMail(User user, DeviceSession deviceSession) {
+		String mail = "Dear [User's Name],\r\n"
+				+ "\r\n"
+				+ "Please find below the logout link that you requested: [Logout Link]\r\n"
+				+ "\r\n"
+				+ "Should you have any questions or need assistance, feel free to reach out to our support team at [Support Email or Contact Information].\r\n"
+				+ "\r\n"
+				+ "Best regards,\r\n[Your Company Name] Team";
+		
+		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", this.appName).replace("[Support Email or Contact Information]", this.contactEmail)
+				.replace("[Logout Link]", this.baseUrl + "open-user/forceLogOut/" +user.getUserId() +"/" +deviceSession.getSessionId());
 		return mail;
 	}
 	

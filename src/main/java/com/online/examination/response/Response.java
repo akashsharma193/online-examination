@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.online.examination.enums.ErrorCode;
 import com.online.examination.exception.CustomException;
 
+import lombok.ToString;
+
+@ToString
 public class Response {
 
 	private Boolean success;

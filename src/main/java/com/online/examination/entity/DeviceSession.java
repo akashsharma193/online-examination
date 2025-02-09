@@ -6,33 +6,31 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @Entity
-@Table(name = "student")
+@Table(name = "deviceSession")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DeviceSession {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	String name;
-
-	String mobile;
-
-	String email;
-
-	String batch;
-
-	String password;
-
-	String orgCode;
+	Long id;
 	
 	String userId;
 	
+	String deviceId;
+	
 	Boolean isActive;
+	
+	String sessionId;
 
 }

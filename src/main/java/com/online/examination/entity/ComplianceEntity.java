@@ -1,5 +1,7 @@
 package com.online.examination.entity;
 
+import com.online.examination.enums.ActivationMode;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,27 +13,15 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @Entity
-@Table(name = "student")
+@Table(name = "compliance")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+public class ComplianceEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	String name;
-
-	String mobile;
-
-	String email;
-
-	String batch;
-
-	String password;
-
-	String orgCode;
+	Long id;
 	
-	String userId;
+	String compliance;
 	
 	Boolean isActive;
 

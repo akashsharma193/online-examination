@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuestionPaperDto {
+public class AnswerPaperDto {
 
 	Map<String, List<String>> questionList;
 	
@@ -26,6 +26,8 @@ public class QuestionPaperDto {
 	String orgCode;
 	
 	String batch;
+	
+	String userId;
 	
 	String questionId;
 	

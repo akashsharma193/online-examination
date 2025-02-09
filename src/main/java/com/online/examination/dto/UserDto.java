@@ -20,5 +20,8 @@ public class UserDto {
 	
 	String orgCode;	
 	
+	String userId;
+	
 	Boolean isActive;
+	
 }
