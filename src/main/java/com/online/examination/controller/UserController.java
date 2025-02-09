@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,10 +33,10 @@ public class UserController {
 	}
 	
 	@PostMapping("login")
-	public ResponseEntity<Response> login(@RequestBody UserDto dto) {
+	public ResponseEntity<Response> login(@RequestHeader(value = "deviceId") String deviceId, @RequestBody UserDto dto) {
 		Response response = new Response();
 		response.succeed();
-		response.setData(userService.login(dto));
+		response.setData(userService.login(dto, deviceId));
 		return ResponseEntity.ok().body(response);
 	}
 	
@@ -51,6 +53,30 @@ public class UserController {
 		Response response = new Response();
 		response.succeed();
 		userService.enableDisableUser(dto);
+		return ResponseEntity.ok().body(response);
+	}
+	
+	@PostMapping("logOut")
+	public ResponseEntity<Response> logOut(@RequestHeader(value = "deviceId") String deviceId, @RequestBody UserDto dto) {
+		Response response = new Response();
+		response.succeed();
+		userService.logOut(dto, deviceId);
+		return ResponseEntity.ok().body(response);
+	}
+	
+	@PostMapping("forceLogOutRequest")
+	public ResponseEntity<Response> forceLogOutRequest(@RequestBody UserDto dto) {
+		Response response = new Response();
+		response.succeed();
+		userService.forceLogOutRequest(dto);
+		return ResponseEntity.ok().body(response);
+	}
+	
+	@GetMapping("forceLogOut/{userId}")
+	public ResponseEntity<Response> forceLogOut(@PathVariable String userId) {
+		Response response = new Response();
+		response.succeed();
+		response.setData(userService.forceLogOut(userId));
 		return ResponseEntity.ok().body(response);
 	}
 	

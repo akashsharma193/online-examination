@@ -7,6 +7,6 @@ import com.online.examination.entity.ExceptionEntity;
 
 
 @Repository
-public interface ExceptionRepository extends JpaRepository<ExceptionEntity, Object> {
+public interface ExceptionRepository extends JpaRepository<ExceptionEntity, Long> {
 
 }

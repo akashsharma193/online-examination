@@ -21,6 +21,8 @@ public enum ErrorCode {
 	DATA_ALREADY_EXIST,
 	
 	INACTIVE_USER,
+	
+	USER_ALREADY_LOGGEDIN,
 
 	UNKNOWN;
 

@@ -9,19 +9,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.online.examination.dto.QuestionPaperDto;
-import com.online.examination.entity.ExceptionEntity;
 import com.online.examination.entity.QuestionPaper;
-import com.online.examination.repository.ExceptionRepository;
 import com.online.examination.repository.QuestionPaperRepo;
 import com.online.examination.service.QuestionPaperService;
 
@@ -30,9 +22,6 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 
 	@Autowired
 	private QuestionPaperRepo questionPaperRepo;
-
-	@Autowired
-	private ExceptionRepository exceptionRepository;
 
 	@Override
 	public QuestionPaperDto createQuestionPaper(QuestionPaperDto dto) {

@@ -6,11 +6,13 @@ import org.springframework.stereotype.Repository;
 import com.online.examination.entity.User;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Object> {
+public interface UserRepo extends JpaRepository<User, Long> {
 
     User findByMobileOrEmail(String mobile, String email);
 
     User findByMobileOrEmailAndIsActive(String mobile, String email, boolean isActive);
+    
+    User findByUserId(String userId);
 
 }
 
