@@ -252,5 +252,23 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	@Override
+	public String activateUser(String userId) {
+		User user = userRepo.findByUserId(userId);
+		if (ObjectUtils.isEmpty(user)) {
+			return "Invalid request";
+		}
+		
+		if (BooleanUtils.isTrue(user.getIsActive())) {
+			return "Invalid request";
+		}
+		user.setIsActive(true);
+		userRepo.save(user);
+		return "User Activated Successfully";
+		
+
+
+	}
+
 
 }

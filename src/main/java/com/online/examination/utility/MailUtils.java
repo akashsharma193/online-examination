@@ -94,7 +94,9 @@ public class MailUtils {
 				+ "\r\n"
 				+ "Best regards,\r\n[Your Company Name] Team";
 		
-		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", this.appName).replace("[Support Email or Contact Information]", this.contactEmail);
+		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", this.appName)
+				.replace("[Support Email or Contact Information]", this.contactEmail)
+				.replace("[Activation Link]", this.baseUrl + "open-user/activateUser/" +user.getUserId());
 		return mail;
 	}
 	
