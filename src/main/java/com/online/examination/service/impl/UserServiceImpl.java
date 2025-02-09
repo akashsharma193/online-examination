@@ -3,6 +3,7 @@ package com.online.examination.service.impl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
 		
 		if (ObjectUtils.isEmpty(deviceSession)) {
 			deviceSessionRepo
-					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).build());
+					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).sessionId(UUID.randomUUID().toString()).build());
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
 			throw new UserAlredayLoggedInException();
 		}
@@ -216,36 +217,37 @@ public class UserServiceImpl implements UserService {
 			throw new InactiveUserException();
 		}
 		
+		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);
+		
 		mailUtils.sendEmail(user.getEmail(), "Logout Link for Your Account",
-				mailUtils.logoutMail(user));
+				mailUtils.logoutMail(user, deviceSession));
 		
 	}
 
 	@Override
-	public String forceLogOut(String userId) {
+	public String forceLogOut(String userId, String sessionId) {
 		if (StringUtils.isBlank(userId)) {
-			throw new InvalidArgumentException();
+			return "Invalid request";
 		}
 		User user = userRepo.findByUserId(userId);
 		if (ObjectUtils.isEmpty(user)) {
-			throw new UserNotFoundException();
+			return "Invalid request";
 		}
 
 		if (ObjectUtils.isEmpty(user.getIsActive()) || BooleanUtils.isFalse(user.getIsActive())) {
-			throw new InactiveUserException();
+			return "Invalid request";
 		}
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);
 
-		if (ObjectUtils.isEmpty(deviceSession)) {
-			throw new UserNotFoundException();
+		if (ObjectUtils.isEmpty(deviceSession) || !sessionId.equals(deviceSession.getSessionId())) {
+			return "Invalid request";
 		}
 
 		if (deviceSession.getIsActive()) {
 			deviceSessionRepo.delete(deviceSession);
 		} else {
-			throw new InvalidArgumentException();
+			return "Invalid request";
 		}
-		
 		return "User has successfully logged out";
 
 	}

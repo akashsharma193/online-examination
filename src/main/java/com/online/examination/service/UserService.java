@@ -16,6 +16,6 @@ public interface UserService {
 
 	void forceLogOutRequest(UserDto dto);
 
-	String forceLogOut(String userId);
+	String forceLogOut(String userId, String sessionId);
 
 }

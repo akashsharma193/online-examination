@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.online.examination.entity.DeviceSession;
 import com.online.examination.entity.ExceptionEntity;
 import com.online.examination.entity.User;
 import com.online.examination.repository.ExceptionRepository;
@@ -97,7 +98,7 @@ public class MailUtils {
 		return mail;
 	}
 	
-	public String logoutMail(User user) {
+	public String logoutMail(User user, DeviceSession deviceSession) {
 		String mail = "Dear [User's Name],\r\n"
 				+ "\r\n"
 				+ "Please find below the logout link that you requested: [Logout Link]\r\n"
@@ -107,7 +108,7 @@ public class MailUtils {
 				+ "Best regards,\r\n[Your Company Name] Team";
 		
 		mail = mail.replace("[User's Name]", user.getName()).replace("[Your Company Name]", this.appName).replace("[Support Email or Contact Information]", this.contactEmail)
-				.replace("[Logout Link]", this.baseUrl + "user/forceLogOut/" +user.getUserId());
+				.replace("[Logout Link]", this.baseUrl + "open-user/forceLogOut/" +user.getUserId() +"/" +deviceSession.getSessionId());
 		return mail;
 	}
 	

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.online.examination.dto.QuestionPaperDto;
-import com.online.examination.dto.UserDto;
 import com.online.examination.response.Response;
 import com.online.examination.service.QuestionPaperService;
 

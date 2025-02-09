@@ -30,5 +30,7 @@ public class DeviceSession {
 	String deviceId;
 	
 	Boolean isActive;
+	
+	String sessionId;
 
 }
