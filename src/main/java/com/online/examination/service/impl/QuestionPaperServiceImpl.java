@@ -43,6 +43,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		questionPaper.setStratTime(dto.getStratTime());
 		questionPaper.setSubjectName(dto.getSubjectName());
 		questionPaper.setTeacherName(dto.getTeacherName());
+		questionPaper.setExamDuration(dto.getExamDuration());
 		questionPaper.setQuestionId(this.createQuestionId(dto.getOrgCode(), dto.getBatch(), dto.getSubjectName(), LocalDate.now().toString()));
 		questionPaper.setIsActive(true);
 		this.convertMapToJsonString(dto, questionPaper);
@@ -126,6 +127,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		data.setSubjectName(questionPaper.getSubjectName());
 		data.setTeacherName(questionPaper.getTeacherName());
 		data.setQuestionId(questionPaper.getQuestionId());
+		data.setExamDuration(questionPaper.getExamDuration());
 
 		return data;
 
