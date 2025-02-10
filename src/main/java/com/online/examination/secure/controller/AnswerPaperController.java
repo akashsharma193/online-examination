@@ -29,11 +29,19 @@ public class AnswerPaperController {
 		return ResponseEntity.ok().body(response);
 	}
 	
-	@PostMapping("getAnswerPaper")
-	public ResponseEntity<Response> getAnswerPaper(@RequestBody AnswerPaperDto dto) {
+	@PostMapping("getAllTest")
+	public ResponseEntity<Response> getAllTest(@RequestBody AnswerPaperDto dto) {
 		Response response = new Response();
 		response.succeed();
-		response.setData(answerPaperService.getAnswerPaper(dto));
+		response.setData(answerPaperService.getAllTest(dto));
+		return ResponseEntity.ok().body(response);
+	}
+	
+	@PostMapping("getResult")
+	public ResponseEntity<Response> getResult(@RequestBody AnswerPaperDto dto) {
+		Response response = new Response();
+		response.succeed();
+		response.setData(answerPaperService.getResult(dto));
 		return ResponseEntity.ok().body(response);
 	}
 

@@ -24,8 +24,8 @@ public class QuestionPaperController {
 	@PostMapping("createQuestionPaper")
 	public ResponseEntity<Response> createQuestionPaper(@RequestBody QuestionPaperDto dto) {
 		Response response = new Response();
+		response.setData(questionPaperService.createQuestionPaper(dto));
 		response.succeed();
-		questionPaperService.createQuestionPaper(dto);
 		return ResponseEntity.ok().body(response);
 	}
 	

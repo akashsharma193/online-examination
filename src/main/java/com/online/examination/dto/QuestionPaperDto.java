@@ -11,13 +11,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString
 public class QuestionPaperDto {
 
-	Map<String, List<String>> questionList;
+	Map<String, List<AnswerDto>> questionList;
 	
 	String subjectName; 
 	

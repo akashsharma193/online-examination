@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AnswerPaperDto {
 
-	Map<String, List<String>> questionList;
+	Map<String, String> answerPaper;
 	
 	String subjectName; 
 	

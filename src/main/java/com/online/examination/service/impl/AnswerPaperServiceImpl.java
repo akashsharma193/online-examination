@@ -1,47 +1,85 @@
 package com.online.examination.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
+import com.online.examination.dto.QuestionPaperDto;
+import com.online.examination.dto.ResultPaperDto;
 import com.online.examination.entity.AnswerPaper;
+import com.online.examination.entity.QuestionPaper;
+import com.online.examination.exception.AlreadySubmittedTestException;
+import com.online.examination.exception.InvalidArgumentException;
 import com.online.examination.repository.AnswerPaperRepo;
+import com.online.examination.repository.QuestionPaperRepo;
 import com.online.examination.service.AnswerPaperService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AnswerPaperServiceImpl implements AnswerPaperService {
 
 	@Autowired
 	private AnswerPaperRepo answerPaperRepo;
+	
+	@Autowired 
+	private QuestionPaperRepo questionPaperRepo;
 
 	@Override
+	@Transactional
 	public AnswerPaperDto saveAnswePaper(AnswerPaperDto dto) {
+		if(this.isAlreadySubmitTest(dto)) {
+			throw new AlreadySubmittedTestException();
+		}
 		AnswerPaper answerPaper = new AnswerPaper();
 		answerPaper.setBatch(dto.getBatch());
 		answerPaper.setEndTime(dto.getEndTime());
 		answerPaper.setOrgCode(dto.getOrgCode());
-		answerPaper.setQuestionList(StringUtils.join(dto.getQuestionList()));
 		answerPaper.setStratTime(dto.getStratTime());
 		answerPaper.setSubjectName(dto.getSubjectName());
 		answerPaper.setTeacherName(dto.getTeacherName());
 		answerPaper.setQuestionId(dto.getQuestionId());
 		answerPaper.setUserId(dto.getUserId());
+		this.convertMapToJsonString(dto, answerPaper);
 		answerPaperRepo.save(answerPaper);
 
-		return convertEntityIntoDto(answerPaper);
+		return dto;
+	}
+	
+	private Boolean isAlreadySubmitTest(AnswerPaperDto dto) {
+		AnswerPaper answerPaperList = answerPaperRepo.findByUserIdAndQuestionId(dto.getUserId(), dto.getQuestionId());
+		if(ObjectUtils.isEmpty(answerPaperList)) {
+			return false;
+		}
+		return true;
+	}
+
+	private void convertMapToJsonString(AnswerPaperDto dto,AnswerPaper answerPaper) {
+		ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonString = mapper.writeValueAsString(dto.getAnswerPaper());
+            answerPaper.setQuestionList(jsonString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		
 	}
 
 
 	@Override
-	public List<AnswerPaperDto> getAnswerPaper(AnswerPaperDto dto) {
+	public List<AnswerPaperDto> getAllTest(AnswerPaperDto dto) {
 		List<AnswerPaperDto> dataList = new ArrayList<>();
 		List<AnswerPaper> answerPaperList = answerPaperRepo.findByUserId(dto.getUserId());
 		if (ObjectUtils.isNotEmpty(answerPaperList)) {
@@ -70,25 +108,105 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 
 	private AnswerPaperDto convertEntityIntoDto(AnswerPaper answerPaper) {
 		AnswerPaperDto data = new AnswerPaperDto();
-		Map<String, List<String>> questionList = new HashMap<>();
+		Map<String, String> questionList = new HashMap<>();
 		String input = answerPaper.getQuestionList();
 
-		// Manually parse the input string
-		String[] entries = input.substring(1, input.length() - 1).split("], ");
-		for (String entry : entries) {
-			String[] keyValue = entry.split("=\\[");
-			String key = keyValue[0].trim();
-			List<String> values = Arrays.asList(keyValue[1].replace("]", "").split(", "));
-			questionList.put(key, values);
-		}
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			questionList = mapper.readValue(input, new TypeReference<Map<String, String>>() {});
+		}catch (IOException e) {
+            e.printStackTrace();
+        }
+		
 
 		data.setBatch(answerPaper.getBatch());
 		data.setEndTime(answerPaper.getEndTime());
 		data.setOrgCode(answerPaper.getOrgCode());
-		data.setQuestionList(questionList);
+		data.setAnswerPaper(questionList);
 		data.setStratTime(answerPaper.getStratTime());
 		data.setSubjectName(answerPaper.getSubjectName());
 		data.setTeacherName(answerPaper.getTeacherName());
+
+		return data;
+
+	}
+
+	@Override
+	public List<ResultPaperDto> getResult(AnswerPaperDto dto) {
+		
+		List<ResultPaperDto> result = new ArrayList<>();
+		
+		Integer correct =0;
+		Integer incorrect = 0;
+		AnswerPaper answerPaper = answerPaperRepo.findByUserIdAndQuestionId(dto.getUserId(), dto.getQuestionId());
+		QuestionPaper questionPaper = questionPaperRepo.findByQuestionId(dto.getQuestionId());
+		
+		if(ObjectUtils.isEmpty(questionPaper) || ObjectUtils.isEmpty(answerPaper)) {
+			throw new InvalidArgumentException();
+		}
+		QuestionPaperDto questionPaperDto = this.convertEntityIntoDto(questionPaper, true);
+		
+		AnswerPaperDto answerPaperDto = this.convertEntityIntoDto(answerPaper);
+		
+
+        for (Map.Entry<String, String> entry : answerPaperDto.getAnswerPaper().entrySet()) {
+        	ResultPaperDto resultPaperDto = new ResultPaperDto();
+        	resultPaperDto.setAnswerDto(questionPaperDto.getQuestionList().get(entry.getKey()).get(0));
+        	resultPaperDto.setYourAnser(entry.getValue());
+        	resultPaperDto.setQuestion(entry.getKey());
+            if(entry.getValue().equals(questionPaperDto.getQuestionList().get(entry.getKey()).get(0).getCorrectAnswer())) {
+            	correct = correct+1;
+            	resultPaperDto.setStatus(true);
+            }else {
+            	incorrect = incorrect+1;
+            	resultPaperDto.setStatus(false);
+            }
+            result.add(resultPaperDto);
+        }
+		return result;
+		
+		
+		
+	}
+	
+	
+	private QuestionPaperDto convertEntityIntoDto(QuestionPaper questionPaper, Boolean isFrontEnd) {
+		QuestionPaperDto data = new QuestionPaperDto();
+		Map<String, List<AnswerDto>> questionList = new HashMap<>();
+		String input = questionPaper.getQuestionList();
+
+		
+		ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            Map<String, List<Map<String, Object>>> tempMap = mapper.readValue(input,
+                    new TypeReference<Map<String, List<Map<String, Object>>>>() {});
+
+            // Convert temporary map to the desired map structure
+            questionList = tempMap.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(obj -> {
+                        AnswerDto answerDto = new AnswerDto();
+                        answerDto.setOption((List<String>) obj.get("option"));
+                        if(BooleanUtils.isTrue(isFrontEnd)) {
+                        	answerDto.setCorrectAnswer((String) obj.get("correctAnswer"));
+                        }
+                        
+                        return answerDto;
+                    }).collect(Collectors.toList())));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+		data.setBatch(questionPaper.getBatch());
+		data.setEndTime(questionPaper.getEndTime());
+		data.setOrgCode(questionPaper.getOrgCode());
+		data.setQuestionList(questionList);
+		data.setStratTime(questionPaper.getStratTime());
+		data.setSubjectName(questionPaper.getSubjectName());
+		data.setTeacherName(questionPaper.getTeacherName());
+		data.setQuestionId(questionPaper.getQuestionId());
 
 		return data;
 

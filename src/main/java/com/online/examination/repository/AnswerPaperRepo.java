@@ -11,5 +11,7 @@ public interface AnswerPaperRepo extends JpaRepository<AnswerPaper, Long>{
 	AnswerPaper findByQuestionId(String questionId);
 	
 	List<AnswerPaper> findByUserId(String userId);
+	
+	AnswerPaper findByUserIdAndQuestionId(String userId, String questionId);
 
 }
