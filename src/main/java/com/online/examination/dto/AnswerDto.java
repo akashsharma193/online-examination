@@ -15,6 +15,8 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AnswerDto {
+	
+	String question;
 
 	List<String> option;
 	

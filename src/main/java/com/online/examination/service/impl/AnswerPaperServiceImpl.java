@@ -12,7 +12,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
@@ -149,21 +151,24 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		
 		AnswerPaperDto answerPaperDto = this.convertEntityIntoDto(answerPaper);
 		
-
-        for (Map.Entry<String, String> entry : answerPaperDto.getAnswerPaper().entrySet()) {
-        	ResultPaperDto resultPaperDto = new ResultPaperDto();
-        	resultPaperDto.setAnswerDto(questionPaperDto.getQuestionList().get(entry.getKey()).get(0));
-        	resultPaperDto.setYourAnser(entry.getValue());
-        	resultPaperDto.setQuestion(entry.getKey());
-            if(entry.getValue().equals(questionPaperDto.getQuestionList().get(entry.getKey()).get(0).getCorrectAnswer())) {
-            	correct = correct+1;
+		
+		for(AnswerDto answer : questionPaperDto.getQuestionList()) {
+			
+			ResultPaperDto resultPaperDto = new ResultPaperDto();
+        	resultPaperDto.setAnswerDto(answer);
+        	resultPaperDto.setYourAnser(answerPaperDto.getAnswerPaper().get(answer.getQuestion()));
+        	resultPaperDto.setQuestion(answer.getQuestion());
+			if(answer.getCorrectAnswer().equals(answerPaperDto.getAnswerPaper().get(answer.getQuestion()))) {
+				correct = correct+1;
             	resultPaperDto.setStatus(true);
-            }else {
-            	incorrect = incorrect+1;
+			}else {
+				incorrect = incorrect+1;
             	resultPaperDto.setStatus(false);
-            }
-            result.add(resultPaperDto);
-        }
+			}
+			result.add(resultPaperDto);
+		}
+		
+
 		return result;
 		
 		
@@ -178,35 +183,26 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 
 		
 		ObjectMapper mapper = new ObjectMapper();
+		List<AnswerDto> tempMap = new ArrayList<>();
+		try {
+			tempMap = mapper.readValue(input,
+			         new TypeReference<List<AnswerDto>>() {});
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
-        try {
-            Map<String, List<Map<String, Object>>> tempMap = mapper.readValue(input,
-                    new TypeReference<Map<String, List<Map<String, Object>>>>() {});
-
-            // Convert temporary map to the desired map structure
-            questionList = tempMap.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(obj -> {
-                        AnswerDto answerDto = new AnswerDto();
-                        answerDto.setOption((List<String>) obj.get("option"));
-                        if(BooleanUtils.isTrue(isFrontEnd)) {
-                        	answerDto.setCorrectAnswer((String) obj.get("correctAnswer"));
-                        }
-                        
-                        return answerDto;
-                    }).collect(Collectors.toList())));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
 		data.setBatch(questionPaper.getBatch());
 		data.setEndTime(questionPaper.getEndTime());
 		data.setOrgCode(questionPaper.getOrgCode());
-		data.setQuestionList(questionList);
+		data.setQuestionList(tempMap);
 		data.setStratTime(questionPaper.getStratTime());
 		data.setSubjectName(questionPaper.getSubjectName());
 		data.setTeacherName(questionPaper.getTeacherName());
 		data.setQuestionId(questionPaper.getQuestionId());
+		data.setExamDuration(questionPaper.getExamDuration());
 
 		return data;
 
