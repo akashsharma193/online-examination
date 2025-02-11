@@ -3,7 +3,7 @@ package com.online.examination.service;
 import java.util.List;
 
 import com.online.examination.dto.AnswerPaperDto;
-import com.online.examination.dto.ResultPaperDto;
+import com.online.examination.dto.FinalResultDto;
 
 public interface AnswerPaperService {
 
@@ -11,6 +11,6 @@ public interface AnswerPaperService {
 
 	List<AnswerPaperDto> getAllTest(AnswerPaperDto dto);
 
-	List<ResultPaperDto> getResult(AnswerPaperDto dto);
+	FinalResultDto getResult(AnswerPaperDto dto);
 
 }

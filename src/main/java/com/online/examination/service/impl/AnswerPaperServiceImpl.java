@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
+import com.online.examination.dto.FinalResultDto;
 import com.online.examination.dto.QuestionPaperDto;
 import com.online.examination.dto.ResultPaperDto;
 import com.online.examination.entity.AnswerPaper;
@@ -135,8 +134,8 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 	}
 
 	@Override
-	public List<ResultPaperDto> getResult(AnswerPaperDto dto) {
-		
+	public FinalResultDto getResult(AnswerPaperDto dto) {
+		FinalResultDto finalResultDto = new FinalResultDto();
 		List<ResultPaperDto> result = new ArrayList<>();
 		
 		Integer correct =0;
@@ -167,18 +166,19 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 			}
 			result.add(resultPaperDto);
 		}
-		
+		finalResultDto.setFinalResult(result);
+		finalResultDto.setTotalQuestion(questionPaperDto.getQuestionList().size());
+		finalResultDto.setCorrectAnswer(correct);
+		finalResultDto.setIncorrectAnswer(incorrect);
+		finalResultDto.setTotalMarks(questionPaperDto.getQuestionList().size() - incorrect);
 
-		return result;
-		
-		
+		return finalResultDto;
 		
 	}
 	
 	
 	private QuestionPaperDto convertEntityIntoDto(QuestionPaper questionPaper, Boolean isFrontEnd) {
 		QuestionPaperDto data = new QuestionPaperDto();
-		Map<String, List<AnswerDto>> questionList = new HashMap<>();
 		String input = questionPaper.getQuestionList();
 
 		
