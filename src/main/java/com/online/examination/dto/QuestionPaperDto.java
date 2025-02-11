@@ -19,7 +19,7 @@ import lombok.experimental.FieldDefaults;
 @ToString
 public class QuestionPaperDto {
 
-	Map<String, List<AnswerDto>> questionList;
+	List<AnswerDto> questionList;
 	
 	String subjectName; 
 	
@@ -40,3 +40,5 @@ public class QuestionPaperDto {
 	LocalDateTime endTime;
 	
 }
+
+

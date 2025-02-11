@@ -17,7 +17,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.QuestionPaperDto;
@@ -48,7 +50,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		questionPaper.setIsActive(true);
 		this.convertMapToJsonString(dto, questionPaper);
 		questionPaperRepo.save(questionPaper);
-		return  convertEntityIntoDto(questionPaper, true);
+		return dto;// convertEntityIntoDto(questionPaper, true);
 	}
 
 	private void convertMapToJsonString(QuestionPaperDto dto,QuestionPaper questionPaper) {
@@ -98,31 +100,21 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 
 		
 		ObjectMapper mapper = new ObjectMapper();
+		List<AnswerDto> tempMap = new ArrayList<>();
+		try {
+			tempMap = mapper.readValue(input,
+			         new TypeReference<List<AnswerDto>>() {});
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
-        try {
-            Map<String, List<Map<String, Object>>> tempMap = mapper.readValue(input,
-                    new TypeReference<Map<String, List<Map<String, Object>>>>() {});
-
-            // Convert temporary map to the desired map structure
-            questionList = tempMap.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(obj -> {
-                        AnswerDto answerDto = new AnswerDto();
-                        answerDto.setOption((List<String>) obj.get("option"));
-                        if(BooleanUtils.isTrue(isFrontEnd)) {
-                        	answerDto.setCorrectAnswer((String) obj.get("correctAnswer"));
-                        }
-                        
-                        return answerDto;
-                    }).collect(Collectors.toList())));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
 		data.setBatch(questionPaper.getBatch());
 		data.setEndTime(questionPaper.getEndTime());
 		data.setOrgCode(questionPaper.getOrgCode());
-		data.setQuestionList(questionList);
+		data.setQuestionList(tempMap);
 		data.setStratTime(questionPaper.getStratTime());
 		data.setSubjectName(questionPaper.getSubjectName());
 		data.setTeacherName(questionPaper.getTeacherName());
