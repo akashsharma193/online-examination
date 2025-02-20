@@ -21,4 +21,6 @@ public class AnswerDto {
 	List<String> option;
 	
 	String correctAnswer;
+	
+	String userAnswer;
 }
