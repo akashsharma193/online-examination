@@ -1,7 +1,7 @@
 package com.online.examination.dto;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AnswerPaperDto {
 
-	Map<String, String> answerPaper;
+	List<AnswerDto> answerPaper;
 	
 	String subjectName; 
 	

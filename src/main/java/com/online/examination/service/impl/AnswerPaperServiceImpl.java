@@ -3,6 +3,7 @@ package com.online.examination.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -109,13 +110,13 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 
 	private AnswerPaperDto convertEntityIntoDto(AnswerPaper answerPaper) {
 		AnswerPaperDto data = new AnswerPaperDto();
-		Map<String, String> questionList = new HashMap<>();
+		List<AnswerDto> questionList = new ArrayList<>();
 		String input = answerPaper.getQuestionList();
 
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			questionList = mapper.readValue(input, new TypeReference<Map<String, String>>() {});
+			questionList = mapper.readValue(input, new TypeReference<List<AnswerDto>>() {});
 		}catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,36 +142,31 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		Integer correct =0;
 		Integer incorrect = 0;
 		AnswerPaper answerPaper = answerPaperRepo.findByUserIdAndQuestionId(dto.getUserId(), dto.getQuestionId());
-		QuestionPaper questionPaper = questionPaperRepo.findByQuestionId(dto.getQuestionId());
 		
-		if(ObjectUtils.isEmpty(questionPaper) || ObjectUtils.isEmpty(answerPaper)) {
-			throw new InvalidArgumentException();
+		if(ObjectUtils.isEmpty(answerPaper)) {
+			return finalResultDto;
 		}
-		QuestionPaperDto questionPaperDto = this.convertEntityIntoDto(questionPaper, true);
 		
 		AnswerPaperDto answerPaperDto = this.convertEntityIntoDto(answerPaper);
 		
-		
-		for(AnswerDto answer : questionPaperDto.getQuestionList()) {
-			
-			ResultPaperDto resultPaperDto = new ResultPaperDto();
-        	resultPaperDto.setAnswerDto(answer);
-        	resultPaperDto.setYourAnser(answerPaperDto.getAnswerPaper().get(answer.getQuestion()));
-        	resultPaperDto.setQuestion(answer.getQuestion());
-			if(answer.getCorrectAnswer().equals(answerPaperDto.getAnswerPaper().get(answer.getQuestion()))) {
-				correct = correct+1;
-            	resultPaperDto.setStatus(true);
-			}else {
-				incorrect = incorrect+1;
-            	resultPaperDto.setStatus(false);
-			}
-			result.add(resultPaperDto);
+		if(ObjectUtils.isNotEmpty(answerPaperDto)) {
+			for(AnswerDto answer : answerPaperDto.getAnswerPaper()) {
+				if(answer.getCorrectAnswer().equals(answer.getUserAnswer())) {
+					correct++;
+				}else {
+					incorrect++;
+				}
+			} 
 		}
+		
+		
+		
+		
 		finalResultDto.setFinalResult(result);
-		finalResultDto.setTotalQuestion(questionPaperDto.getQuestionList().size());
+		finalResultDto.setTotalQuestion(answerPaperDto.getAnswerPaper().size());
 		finalResultDto.setCorrectAnswer(correct);
 		finalResultDto.setIncorrectAnswer(incorrect);
-		finalResultDto.setTotalMarks(questionPaperDto.getQuestionList().size() - incorrect);
+		finalResultDto.setTotalMarks(answerPaperDto.getAnswerPaper().size() - incorrect);
 
 		return finalResultDto;
 		
