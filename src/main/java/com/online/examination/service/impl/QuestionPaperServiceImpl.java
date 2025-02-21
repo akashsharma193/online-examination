@@ -95,7 +95,6 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 
 	private QuestionPaperDto convertEntityIntoDto(QuestionPaper questionPaper, Boolean isFrontEnd) {
 		QuestionPaperDto data = new QuestionPaperDto();
-		Map<String, List<AnswerDto>> questionList = new HashMap<>();
 		String input = questionPaper.getQuestionList();
 
 		
@@ -109,7 +108,10 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-
+		
+		tempMap = tempMap.stream()
+			    .peek(x -> x.setCorrectAnswer(null))
+			    .collect(Collectors.toList());
 
 		data.setBatch(questionPaper.getBatch());
 		data.setEndTime(questionPaper.getEndTime());

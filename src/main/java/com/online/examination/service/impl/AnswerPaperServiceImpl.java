@@ -137,7 +137,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 	@Override
 	public FinalResultDto getResult(AnswerPaperDto dto) {
 		FinalResultDto finalResultDto = new FinalResultDto();
-		List<ResultPaperDto> result = new ArrayList<>();
+		List<AnswerDto> result = new ArrayList<>();
 		
 		Integer correct =0;
 		Integer incorrect = 0;
@@ -151,6 +151,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		
 		if(ObjectUtils.isNotEmpty(answerPaperDto)) {
 			for(AnswerDto answer : answerPaperDto.getAnswerPaper()) {
+				result.add(answer);
 				if(answer.getCorrectAnswer().equals(answer.getUserAnswer())) {
 					correct++;
 				}else {
