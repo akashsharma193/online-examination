@@ -66,6 +66,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public UserDto login(UserDto dto, String deviceId) {
 		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile())) || StringUtils.isBlank(deviceId)){
 			throw new InvalidArgumentException();
@@ -87,8 +88,15 @@ public class UserServiceImpl implements UserService {
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);
 		
 		if (ObjectUtils.isEmpty(deviceSession)) {
+			DeviceSession deviceSessionByDevice = deviceSessionRepo.findByDeviceIdAndIsActive(deviceId, true);
+			if(ObjectUtils.isNotEmpty(deviceSessionByDevice)) {
+				deviceSessionRepo.delete(deviceSessionByDevice);
+			}
+			
 			deviceSessionRepo
 					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).sessionId(UUID.randomUUID().toString()).build());
+			
+			
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
 			throw new UserAlredayLoggedInException();
 		}
@@ -268,6 +276,20 @@ public class UserServiceImpl implements UserService {
 		
 
 
+	}
+
+	@Override
+	public UserDto checkLoggedInUser(String deviceId) {
+		DeviceSession deviceSession = deviceSessionRepo.findByDeviceIdAndIsActive(deviceId, true);
+		if(ObjectUtils.isNotEmpty(deviceSession) && StringUtils.isNoneBlank(deviceSession.getUserId())) {
+			User user = userRepo.findByUserId(deviceSession.getUserId());
+			
+			if(ObjectUtils.isNotEmpty(user)) {
+				ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+				return mapper.convertValue(user, UserDto.class);
+			}
+		}
+		return null;
 	}
 
 
