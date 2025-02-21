@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FinalResultDto {
 	
-	List<ResultPaperDto> finalResult;
+	List<AnswerDto> finalResult;
 	
 	Integer totalQuestion;
 	
