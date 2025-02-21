@@ -13,5 +13,7 @@ public interface DeviceSessionRepo extends JpaRepository<DeviceSession, Long>{
 	Optional<DeviceSession> findByDeviceIdAndUserId(String deviceId, String userId);
 
 	DeviceSession findByUserIdAndIsActive(String userId, boolean isActive);
+	
+	DeviceSession findByDeviceIdAndIsActive(String userId, boolean isActive);
 
 }

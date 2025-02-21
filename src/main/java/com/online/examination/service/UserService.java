@@ -20,4 +20,6 @@ public interface UserService {
 
 	String activateUser(String userId);
 
+	UserDto checkLoggedInUser(String deviceId);
+
 }
