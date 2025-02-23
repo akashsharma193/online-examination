@@ -29,6 +29,8 @@ public class QuestionPaperDto {
 	
 	String batch;
 	
+	String userId;
+	
 	String questionId;
 	
 	String examDuration;
