@@ -2,30 +2,20 @@ package com.online.examination.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
 import com.online.examination.dto.FinalResultDto;
-import com.online.examination.dto.QuestionPaperDto;
-import com.online.examination.dto.ResultPaperDto;
 import com.online.examination.entity.AnswerPaper;
-import com.online.examination.entity.QuestionPaper;
 import com.online.examination.exception.AlreadySubmittedTestException;
-import com.online.examination.exception.InvalidArgumentException;
 import com.online.examination.repository.AnswerPaperRepo;
-import com.online.examination.repository.QuestionPaperRepo;
 import com.online.examination.service.AnswerPaperService;
 
 import jakarta.transaction.Transactional;
@@ -36,9 +26,6 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 	@Autowired
 	private AnswerPaperRepo answerPaperRepo;
 	
-	@Autowired 
-	private QuestionPaperRepo questionPaperRepo;
-
 	@Override
 	@Transactional
 	public AnswerPaperDto saveAnswePaper(AnswerPaperDto dto) {
@@ -173,38 +160,4 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		
 	}
 	
-	
-	private QuestionPaperDto convertEntityIntoDto(QuestionPaper questionPaper, Boolean isFrontEnd) {
-		QuestionPaperDto data = new QuestionPaperDto();
-		String input = questionPaper.getQuestionList();
-
-		
-		ObjectMapper mapper = new ObjectMapper();
-		List<AnswerDto> tempMap = new ArrayList<>();
-		try {
-			tempMap = mapper.readValue(input,
-			         new TypeReference<List<AnswerDto>>() {});
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-
-
-		data.setBatch(questionPaper.getBatch());
-		data.setEndTime(questionPaper.getEndTime());
-		data.setOrgCode(questionPaper.getOrgCode());
-		data.setQuestionList(tempMap);
-		data.setStratTime(questionPaper.getStratTime());
-		data.setSubjectName(questionPaper.getSubjectName());
-		data.setTeacherName(questionPaper.getTeacherName());
-		data.setQuestionId(questionPaper.getQuestionId());
-		data.setExamDuration(questionPaper.getExamDuration());
-
-		return data;
-
-	}
-
-
-
 }
