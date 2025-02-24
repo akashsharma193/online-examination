@@ -6,13 +6,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.QuestionPaperDto;
@@ -30,7 +26,6 @@ import com.online.examination.entity.AnswerPaper;
 import com.online.examination.entity.QuestionPaper;
 import com.online.examination.repository.AnswerPaperRepo;
 import com.online.examination.repository.QuestionPaperRepo;
-import com.online.examination.service.AnswerPaperService;
 import com.online.examination.service.QuestionPaperService;
 
 import jakarta.transaction.Transactional;
@@ -75,86 +70,76 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 	}
 
 	private String createQuestionId(String orgCode, String batch, String subjectName, String date) {
-		String questionId = "";
-		questionId = questionId.concat(orgCode).concat(batch).concat(subjectName).concat(date);
-		QuestionPaper questionPaper = questionPaperRepo.findByQuestionId(questionId);
-		if (ObjectUtils.isNotEmpty(questionPaper)) {
-			questionId = this.createQuestionId(orgCode, batch, subjectName,
-					LocalDate.now().toString() + "_" + RandomStringUtils.randomAlphanumeric(2));
-		}
-		return questionId;
+	    String questionId = String.join("", orgCode, batch, subjectName, date);
+	    while (questionPaperRepo.findByQuestionId(questionId) != null) {
+	        questionId = String.join("", orgCode, batch, subjectName,
+	                LocalDate.now().toString(), "_", RandomStringUtils.randomAlphanumeric(2));
+	    }
+	    return questionId;
 	}
+
 
 	@Override
 	public List<QuestionPaperDto> getExam(QuestionPaperDto dto) {
-		List<QuestionPaperDto> dataList = new ArrayList<>();
-		List<QuestionPaper> questionPaperList = questionPaperRepo.findByOrgCodeAndBatch(dto.getOrgCode(),
-				dto.getBatch());
-		if (ObjectUtils.isNotEmpty(questionPaperList)) {
-			LocalDateTime localDateTime = LocalDateTime.now();
-			ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
-			ZonedDateTime istZonedDateTime = localDateTime.atZone(istZoneId);
-			for (QuestionPaper questionPaper : questionPaperList) {
-				if (isTimeBetween(istZonedDateTime.toLocalDateTime(), questionPaper.getStratTime(),
-						questionPaper.getEndTime())) {
-					dataList.add(convertEntityIntoDto(questionPaper, false));
-				}
-			}
+	    List<QuestionPaperDto> dataList = new ArrayList<>();
+	    List<QuestionPaper> questionPaperList = questionPaperRepo.findByOrgCodeAndBatch(dto.getOrgCode(), dto.getBatch());
 
-		}
-		CopyOnWriteArrayList<QuestionPaperDto> list = new CopyOnWriteArrayList<>(dataList);
-		if (ObjectUtils.isNotEmpty(dataList)) {
-			if (StringUtils.isNoneBlank(dto.getUserId())) {
-				List<AnswerPaper> answerPaperList = answerPaperRepo.findByUserId(dto.getUserId());
-				if (!CollectionUtils.isEmpty(answerPaperList)) {
-					for (AnswerPaper answerPaper : answerPaperList) {
-						for (QuestionPaperDto questionPaperDto : list) {
-							if (answerPaper.getQuestionId().equals(questionPaperDto.getQuestionId())) {
-								list.remove(questionPaperDto);
-							}
+	    if (ObjectUtils.isNotEmpty(questionPaperList)) {
+	        ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
+	        LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
 
-						}
-					}
-				}
-			}
-		}
+	        questionPaperList.stream()
+	            .filter(qp -> isTimeBetween(currentTime, qp.getStratTime(), qp.getEndTime()))
+	            .forEach(qp -> dataList.add(convertEntityIntoDto(qp, false)));
+	    }
 
-		return list;
+	    if (ObjectUtils.isNotEmpty(dataList) && StringUtils.isNotBlank(dto.getUserId())) {
+	        List<AnswerPaper> answerPaperList = answerPaperRepo.findByUserId(dto.getUserId());
+
+	        if (!CollectionUtils.isEmpty(answerPaperList)) {
+	            Set<String> answeredQuestionIds = answerPaperList.stream()
+	                .map(AnswerPaper::getQuestionId)
+	                .collect(Collectors.toSet());
+
+	            dataList.removeIf(questionPaperDto -> answeredQuestionIds.contains(questionPaperDto.getQuestionId()));
+	        }
+	    }
+
+	    return dataList;
 	}
+
 
 	private QuestionPaperDto convertEntityIntoDto(QuestionPaper questionPaper, Boolean isFrontEnd) {
-		QuestionPaperDto data = new QuestionPaperDto();
-		String input = questionPaper.getQuestionList();
+	    QuestionPaperDto data = new QuestionPaperDto();
+	    String input = questionPaper.getQuestionList();
 
-		ObjectMapper mapper = new ObjectMapper();
-		List<AnswerDto> tempMap = new ArrayList<>();
-		try {
-			tempMap = mapper.readValue(input, new TypeReference<List<AnswerDto>>() {
-			});
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+	    ObjectMapper mapper = new ObjectMapper();
+	    List<AnswerDto> tempMap = new ArrayList<>();
+	    try {
+	        tempMap = mapper.readValue(input, new TypeReference<List<AnswerDto>>() {});
+	    } catch (JsonProcessingException e) {
+	        e.printStackTrace();
+	    }
 
-		tempMap = tempMap.stream().peek(x -> x.setCorrectAnswer(null)).collect(Collectors.toList());
+	    tempMap.forEach(x -> x.setCorrectAnswer(null));
 
-		data.setBatch(questionPaper.getBatch());
-		data.setEndTime(questionPaper.getEndTime());
-		data.setOrgCode(questionPaper.getOrgCode());
-		data.setQuestionList(tempMap);
-		data.setStratTime(questionPaper.getStratTime());
-		data.setSubjectName(questionPaper.getSubjectName());
-		data.setTeacherName(questionPaper.getTeacherName());
-		data.setQuestionId(questionPaper.getQuestionId());
-		data.setExamDuration(questionPaper.getExamDuration());
+	    data.setBatch(questionPaper.getBatch());
+	    data.setEndTime(questionPaper.getEndTime());
+	    data.setOrgCode(questionPaper.getOrgCode());
+	    data.setQuestionList(tempMap);
+	    data.setStratTime(questionPaper.getStratTime());
+	    data.setSubjectName(questionPaper.getSubjectName());
+	    data.setTeacherName(questionPaper.getTeacherName());
+	    data.setQuestionId(questionPaper.getQuestionId());
+	    data.setExamDuration(questionPaper.getExamDuration());
 
-		return data;
-
+	    return data;
 	}
+
 
 	public static boolean isTimeBetween(LocalDateTime currentTime, LocalDateTime startTime, LocalDateTime endTime) {
-		return currentTime.isAfter(startTime) && currentTime.isBefore(endTime);
+	    return !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
 	}
+
 
 }
