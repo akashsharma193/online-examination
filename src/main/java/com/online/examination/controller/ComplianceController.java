@@ -9,32 +9,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.online.examination.entity.Configuration;
+import com.online.examination.entity.ComplianceEntity;
 import com.online.examination.response.Response;
-import com.online.examination.service.ConfigurationService;
-
+import com.online.examination.service.ComplianceService;
 
 @CrossOrigin
 @RestController
-@RequestMapping("configuration")
+@RequestMapping("compliance")
 public class ComplianceController {
 
 	@Autowired
-	private ConfigurationService configurationService;
+	private ComplianceService complianceService;
 	
-	@PostMapping("saveConfiguration")
-	public ResponseEntity<Response> saveConfiguration(@RequestBody Configuration dto) {
+	@PostMapping("saveCompliance")
+	public ResponseEntity<Response> saveCompliance(@RequestBody ComplianceEntity dto) {
 		Response response = new Response();
 		response.succeed();
-		response.setData(configurationService.saveUser(dto));
+		response.setData(complianceService.saveCompliance(dto));
 		return ResponseEntity.ok().body(response);
 	}
 	
-	@GetMapping("getConfiguration")
-	public ResponseEntity<Response> getConfiguration() {
+	@GetMapping("getCompliance")
+	public ResponseEntity<Response> getCompliance() {
 		Response response = new Response();
 		response.succeed();
-		response.setData(configurationService.getConfiguration());
+		response.setData(complianceService.getCompliance());
 		return ResponseEntity.ok().body(response);
 	}
 }
