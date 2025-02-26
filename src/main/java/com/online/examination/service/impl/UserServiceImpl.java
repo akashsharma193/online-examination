@@ -1,5 +1,6 @@
 package com.online.examination.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.dto.UserDto;
 import com.online.examination.entity.Configuration;
 import com.online.examination.entity.DeviceSession;
+import com.online.examination.entity.IpRateLimit;
 import com.online.examination.entity.User;
 import com.online.examination.exception.AlreadyExistException;
 import com.online.examination.exception.InactiveUserException;
@@ -24,12 +26,14 @@ import com.online.examination.exception.InvalidPasswordException;
 import com.online.examination.exception.UserAlredayLoggedInException;
 import com.online.examination.exception.UserNotFoundException;
 import com.online.examination.repository.DeviceSessionRepo;
+import com.online.examination.repository.IpRateLimitRepo;
 import com.online.examination.repository.UserRepo;
 import com.online.examination.service.ConfigurationService;
 import com.online.examination.service.UserService;
 import com.online.examination.utility.MailUtils;
 import com.online.examination.utility.PasswordUtility;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -46,6 +50,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private MailUtils mailUtils;
+	
+	@Autowired
+	private IpRateLimitRepo ipRateLimitRepo;
 
 	@Override
 	@Transactional
@@ -279,17 +286,60 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto checkLoggedInUser(String deviceId) {
+	public UserDto checkLoggedInUser(String deviceId,HttpServletRequest request) {
 		DeviceSession deviceSession = deviceSessionRepo.findByDeviceIdAndIsActive(deviceId, true);
 		if(ObjectUtils.isNotEmpty(deviceSession) && StringUtils.isNoneBlank(deviceSession.getUserId())) {
 			User user = userRepo.findByUserId(deviceSession.getUserId());
 			
 			if(ObjectUtils.isNotEmpty(user)) {
+				String ipAddress = request.getHeader("X-FORWARDED-FOR");
+				if (ipAddress == null || ipAddress.isEmpty()) {
+					ipAddress = request.getRemoteAddr();
+				}
+				
+				IpRateLimit ipRateLimit = ipRateLimitRepo.findByIpAddress(ipAddress);
+				
+				if(ObjectUtils.isNotEmpty(ipRateLimit)) {
+					ipRateLimitRepo.delete(ipRateLimit);
+				}
+				
+				
 				ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				return mapper.convertValue(user, UserDto.class);
 			}
 		}
+		this.checkIpRate(request, deviceId);
 		return null;
+	}
+
+	private void checkIpRate(HttpServletRequest request, String deviceId) {
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");
+		if (ipAddress == null || ipAddress.isEmpty()) {
+			ipAddress = request.getRemoteAddr();
+		}
+		IpRateLimit ipRateLimit = ipRateLimitRepo.findByIpAddress(ipAddress);
+		if(ObjectUtils.isNotEmpty(ipRateLimit)) {
+			if(ipRateLimit.getLimitEndTime().isAfter(LocalDateTime.now())) {
+				throw new InvalidArgumentException();
+			}
+			
+			if(ipRateLimit.getFailCount()>=4) {
+				ipRateLimit.setFailCount(0);
+				ipRateLimit.setLimitEndTime(LocalDateTime.now().plusMinutes(1));
+			}else {
+				ipRateLimit.setFailCount(ipRateLimit.getFailCount()+1);
+			}
+			ipRateLimitRepo.save(ipRateLimit);
+		}else {
+			IpRateLimit ipRateLimitObj = new IpRateLimit();
+			ipRateLimitObj.setDeviceId(deviceId);
+			ipRateLimitObj.setFailCount(1);
+			ipRateLimitObj.setIpAddress(ipAddress);
+			ipRateLimitObj.setLimitEndTime(LocalDateTime.now());
+			ipRateLimitRepo.save(ipRateLimitObj);
+		}
+		
+		
 	}
 
 

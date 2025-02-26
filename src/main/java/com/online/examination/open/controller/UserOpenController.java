@@ -18,6 +18,8 @@ import com.online.examination.dto.UserDto;
 import com.online.examination.response.Response;
 import com.online.examination.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @CrossOrigin
 @RestController
 @RequestMapping("open-user")
@@ -51,9 +53,9 @@ public class UserOpenController {
 	}
 	
 	@PostMapping("checkLoggedInUser")
-	public ResponseEntity<Response> checkLoggedInUser(@RequestHeader(value = "deviceId") String deviceId) {
+	public ResponseEntity<Response> checkLoggedInUser(@RequestHeader(value = "deviceId") String deviceId, HttpServletRequest request) {
 		Response response = new Response();
-		response.setData(userService.checkLoggedInUser(deviceId));
+		response.setData(userService.checkLoggedInUser(deviceId,request));
 		response.succeed();
 		return ResponseEntity.ok().body(response);
 	}
