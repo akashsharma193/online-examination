@@ -2,6 +2,8 @@ package com.online.examination.service;
 
 import com.online.examination.dto.UserDto;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 public interface UserService {
 
 	UserDto saveUser(UserDto dto);
@@ -20,6 +22,6 @@ public interface UserService {
 
 	String activateUser(String userId);
 
-	UserDto checkLoggedInUser(String deviceId);
+	UserDto checkLoggedInUser(String deviceId, HttpServletRequest request);
 
 }
