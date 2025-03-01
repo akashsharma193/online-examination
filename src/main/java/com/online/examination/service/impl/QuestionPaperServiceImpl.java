@@ -125,7 +125,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 	        e.printStackTrace();
 	    }
 
-	    tempMap.forEach(x -> x.setCorrectAnswer(null));
+	   // tempMap.forEach(x -> x.setCorrectAnswer(null));
 
 	    data.setBatch(questionPaper.getBatch());
 	    data.setEndTime(questionPaper.getEndTime());
@@ -136,7 +136,6 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 	    data.setTeacherName(questionPaper.getTeacherName());
 	    data.setQuestionId(questionPaper.getQuestionId());
 	    data.setExamDuration(questionPaper.getExamDuration());
-
 	    return data;
 	}
 
