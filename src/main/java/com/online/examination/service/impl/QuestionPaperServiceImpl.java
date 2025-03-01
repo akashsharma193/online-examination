@@ -86,8 +86,14 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 
 	    if (ObjectUtils.isNotEmpty(questionPaperList)) {
 
+	    	LocalDateTime localDateTime = LocalDateTime.now();
+			ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
+			ZonedDateTime istDateTime = localDateTime.atZone(ZoneId.systemDefault()) // Convert LocalDateTime to ZonedDateTime using system default time zone
+                    .withZoneSameInstant(istZoneId); // Convert it to IST
+			
+			
 	        questionPaperList.stream()
-	            .filter(qp -> isTimeBetween(LocalDateTime.now(), qp.getStratTime(), qp.getEndTime()))
+	            .filter(qp -> isTimeBetween(istDateTime.toLocalDateTime(), qp.getStratTime(), qp.getEndTime()))
 	            .forEach(qp -> dataList.add(convertEntityIntoDto(qp, false)));
 	    }
 

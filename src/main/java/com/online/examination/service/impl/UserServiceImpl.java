@@ -103,8 +103,6 @@ public class UserServiceImpl implements UserService {
 				deviceSessionRepo.delete(deviceSessionByDevice);
 			}
 			
-//			 ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
-//		     LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
 			
 			LocalDateTime localDateTime = LocalDateTime.now();
 			ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
@@ -114,7 +112,8 @@ public class UserServiceImpl implements UserService {
 
 			
 			deviceSessionRepo
-					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).lastLoginTime(istDateTime.toLocalDateTime()).sessionId(UUID.randomUUID().toString()).build());
+					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true)
+							.lastLoginTime(istDateTime.toLocalDateTime()).sessionId(UUID.randomUUID().toString()).build());
 			
 			
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
@@ -321,7 +320,12 @@ public class UserServiceImpl implements UserService {
 				
 				ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				
-		        deviceSession.setLastLoginTime(LocalDateTime.now());
+				LocalDateTime localDateTime = LocalDateTime.now();
+				ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
+				ZonedDateTime istDateTime = localDateTime.atZone(ZoneId.systemDefault()) // Convert LocalDateTime to ZonedDateTime using system default time zone
+	                    .withZoneSameInstant(istZoneId); // Convert it to IST
+				
+		        deviceSession.setLastLoginTime(istDateTime.toLocalDateTime());
 		        deviceSessionRepo.save(deviceSession);
 		        
 				
