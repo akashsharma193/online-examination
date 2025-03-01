@@ -102,8 +102,11 @@ public class UserServiceImpl implements UserService {
 				deviceSessionRepo.delete(deviceSessionByDevice);
 			}
 			
+			 ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
+		        LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
+			
 			deviceSessionRepo
-					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).lastLoginTime(LocalDateTime.now()).sessionId(UUID.randomUUID().toString()).build());
+					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).lastLoginTime(currentTime).sessionId(UUID.randomUUID().toString()).build());
 			
 			
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
