@@ -3,6 +3,7 @@ package com.online.examination.service.impl;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -102,11 +103,18 @@ public class UserServiceImpl implements UserService {
 				deviceSessionRepo.delete(deviceSessionByDevice);
 			}
 			
-			 ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
-		        LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
+//			 ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
+//		     LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
+			
+			LocalDateTime localDateTime = LocalDateTime.now();
+			ZoneId istZoneId = ZoneId.of("Asia/Kolkata");
+			ZonedDateTime istDateTime = localDateTime.atZone(ZoneId.systemDefault()) // Convert LocalDateTime to ZonedDateTime using system default time zone
+                    .withZoneSameInstant(istZoneId); // Convert it to IST
+
+
 			
 			deviceSessionRepo
-					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).lastLoginTime(currentTime).sessionId(UUID.randomUUID().toString()).build());
+					.save(DeviceSession.builder().userId(user.getUserId()).deviceId(deviceId).isActive(true).lastLoginTime(istDateTime.toLocalDateTime()).sessionId(UUID.randomUUID().toString()).build());
 			
 			
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
