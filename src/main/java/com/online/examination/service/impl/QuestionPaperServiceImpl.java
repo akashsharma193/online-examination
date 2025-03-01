@@ -85,11 +85,9 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 	    List<QuestionPaper> questionPaperList = questionPaperRepo.findByOrgCodeAndBatch(dto.getOrgCode(), dto.getBatch());
 
 	    if (ObjectUtils.isNotEmpty(questionPaperList)) {
-	        ZonedDateTime istZonedDateTime = LocalDateTime.now().atZone(ZoneId.of("Asia/Kolkata"));
-	        LocalDateTime currentTime = istZonedDateTime.toLocalDateTime();
 
 	        questionPaperList.stream()
-	            .filter(qp -> isTimeBetween(currentTime, qp.getStratTime(), qp.getEndTime()))
+	            .filter(qp -> isTimeBetween(LocalDateTime.now(), qp.getStratTime(), qp.getEndTime()))
 	            .forEach(qp -> dataList.add(convertEntityIntoDto(qp, false)));
 	    }
 
