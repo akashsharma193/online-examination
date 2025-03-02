@@ -23,4 +23,6 @@ public class AnswerDto {
 	String correctAnswer;
 	
 	String userAnswer;
+	
+	String color;
 }
