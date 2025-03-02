@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.online.examination.constants.Constant;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
 import com.online.examination.dto.FinalResultDto;
@@ -138,17 +139,18 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		
 		if(ObjectUtils.isNotEmpty(answerPaperDto)) {
 			for(AnswerDto answer : answerPaperDto.getAnswerPaper()) {
-				result.add(answer);
+				
+				
 				if(answer.getCorrectAnswer().equals(answer.getUserAnswer())) {
 					correct++;
+					answer.setColor(Constant.GREEN);
 				}else {
 					incorrect++;
+					answer.setColor(Constant.RED);
 				}
+				result.add(answer);
 			} 
 		}
-		
-		
-		
 		
 		finalResultDto.setFinalResult(result);
 		finalResultDto.setTotalQuestion(answerPaperDto.getAnswerPaper().size());
