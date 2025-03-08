@@ -15,9 +15,11 @@ import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
 import com.online.examination.dto.FinalResultDto;
 import com.online.examination.entity.AnswerPaper;
+import com.online.examination.entity.QuestionPaper;
 import com.online.examination.exception.AlreadySubmittedTestException;
 import com.online.examination.exception.InvalidArgumentException;
 import com.online.examination.repository.AnswerPaperRepo;
+import com.online.examination.repository.QuestionPaperRepo;
 import com.online.examination.service.AnswerPaperService;
 
 import jakarta.transaction.Transactional;
@@ -28,23 +30,26 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 	@Autowired
 	private AnswerPaperRepo answerPaperRepo;
 	
+	@Autowired
+	private QuestionPaperRepo questionPaperRepo;
+	
 	@Override
 	@Transactional
 	public AnswerPaperDto saveAnswePaper(AnswerPaperDto dto) {
 		if(this.isAlreadySubmitTest(dto)) {
 			throw new AlreadySubmittedTestException();
 		}
-		AnswerPaper answerPaperList = answerPaperRepo.findByQuestionId(dto.getQuestionId());
-		if(ObjectUtils.isEmpty(answerPaperList)) {
+		QuestionPaper questionPaper = questionPaperRepo.findByQuestionId(dto.getQuestionId());
+		if(ObjectUtils.isEmpty(questionPaper)) {
 			throw new InvalidArgumentException();
 		}
 		AnswerPaper answerPaper = new AnswerPaper();
-		answerPaper.setBatch(answerPaperList.getBatch());
-		answerPaper.setEndTime(answerPaperList.getEndTime());
-		answerPaper.setOrgCode(answerPaperList.getOrgCode());
-		answerPaper.setStratTime(answerPaperList.getStratTime());
-		answerPaper.setSubjectName(answerPaperList.getSubjectName());
-		answerPaper.setTeacherName(answerPaperList.getTeacherName());
+		answerPaper.setBatch(questionPaper.getBatch());
+		answerPaper.setEndTime(questionPaper.getEndTime());
+		answerPaper.setOrgCode(questionPaper.getOrgCode());
+		answerPaper.setStratTime(questionPaper.getStratTime());
+		answerPaper.setSubjectName(questionPaper.getSubjectName());
+		answerPaper.setTeacherName(questionPaper.getTeacherName());
 		answerPaper.setQuestionId(dto.getQuestionId());
 		answerPaper.setUserId(dto.getUserId());
 		this.convertMapToJsonString(dto, answerPaper);
