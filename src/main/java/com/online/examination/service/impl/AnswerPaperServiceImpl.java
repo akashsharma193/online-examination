@@ -16,6 +16,7 @@ import com.online.examination.dto.AnswerPaperDto;
 import com.online.examination.dto.FinalResultDto;
 import com.online.examination.entity.AnswerPaper;
 import com.online.examination.exception.AlreadySubmittedTestException;
+import com.online.examination.exception.InvalidArgumentException;
 import com.online.examination.repository.AnswerPaperRepo;
 import com.online.examination.service.AnswerPaperService;
 
@@ -33,13 +34,17 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		if(this.isAlreadySubmitTest(dto)) {
 			throw new AlreadySubmittedTestException();
 		}
+		AnswerPaper answerPaperList = answerPaperRepo.findByQuestionId(dto.getQuestionId());
+		if(ObjectUtils.isEmpty(answerPaperList)) {
+			throw new InvalidArgumentException();
+		}
 		AnswerPaper answerPaper = new AnswerPaper();
-		answerPaper.setBatch(dto.getBatch());
-		answerPaper.setEndTime(dto.getEndTime());
-		answerPaper.setOrgCode(dto.getOrgCode());
-		answerPaper.setStratTime(dto.getStratTime());
-		answerPaper.setSubjectName(dto.getSubjectName());
-		answerPaper.setTeacherName(dto.getTeacherName());
+		answerPaper.setBatch(answerPaperList.getBatch());
+		answerPaper.setEndTime(answerPaperList.getEndTime());
+		answerPaper.setOrgCode(answerPaperList.getOrgCode());
+		answerPaper.setStratTime(answerPaperList.getStratTime());
+		answerPaper.setSubjectName(answerPaperList.getSubjectName());
+		answerPaper.setTeacherName(answerPaperList.getTeacherName());
 		answerPaper.setQuestionId(dto.getQuestionId());
 		answerPaper.setUserId(dto.getUserId());
 		this.convertMapToJsonString(dto, answerPaper);
