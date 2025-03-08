@@ -7,5 +7,8 @@ public final class Constant {
 	
 	/** The Constant ROLE_USER. */
 	public static final String GREEN = "green";
+	
+	/** The Constant ROLE_USER. */
+	public static final String YELLOW = "yellow";
 
 }

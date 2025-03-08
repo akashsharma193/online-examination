@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -139,6 +140,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		
 		Integer correct =0;
 		Integer incorrect = 0;
+		Integer unattempted = 0;
 		AnswerPaper answerPaper = answerPaperRepo.findByUserIdAndQuestionId(dto.getUserId(), dto.getQuestionId());
 		
 		if(ObjectUtils.isEmpty(answerPaper)) {
@@ -151,7 +153,11 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 			for(AnswerDto answer : answerPaperDto.getAnswerPaper()) {
 				
 				
-				if(answer.getCorrectAnswer().equals(answer.getUserAnswer())) {
+				if(StringUtils.isBlank(answer.getUserAnswer())) {
+					unattempted++;
+					answer.setColor(Constant.YELLOW);
+				}
+				else if(answer.getCorrectAnswer().equals(answer.getUserAnswer())) {
 					correct++;
 					answer.setColor(Constant.GREEN);
 				}else {
