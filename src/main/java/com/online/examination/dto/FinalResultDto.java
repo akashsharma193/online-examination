@@ -20,7 +20,7 @@ public class FinalResultDto {
 	
 	Integer totalMarks;
 	
-	Integer unattempted;
+	Integer unAttempted;
 	
 	
 }
