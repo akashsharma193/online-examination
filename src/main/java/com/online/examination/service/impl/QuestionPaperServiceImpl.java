@@ -143,8 +143,8 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 
 
 	public static boolean isTimeBetween(LocalDateTime currentTime, LocalDateTime startTime, LocalDateTime endTime) {
-	    //return !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
-		return true;
+	    return !currentTime.isAfter(endTime);
+//		return true;
 	}
 
 
