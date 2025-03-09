@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.constants.Constant;
+import com.online.examination.constants.ErrorMessage;
 import com.online.examination.dto.AnswerDto;
 import com.online.examination.dto.AnswerPaperDto;
 import com.online.examination.dto.FinalResultDto;
@@ -38,11 +39,11 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 	@Transactional
 	public AnswerPaperDto saveAnswePaper(AnswerPaperDto dto) {
 		if(this.isAlreadySubmitTest(dto)) {
-			throw new AlreadySubmittedTestException();
+			throw new AlreadySubmittedTestException(ErrorMessage.ALREADY_SUBMITTED_TEST);
 		}
 		QuestionPaper questionPaper = questionPaperRepo.findByQuestionId(dto.getQuestionId());
 		if(ObjectUtils.isEmpty(questionPaper)) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		AnswerPaper answerPaper = new AnswerPaper();
 		answerPaper.setBatch(questionPaper.getBatch());

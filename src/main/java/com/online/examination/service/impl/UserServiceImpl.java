@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.online.examination.constants.ErrorMessage;
 import com.online.examination.dto.UserDto;
 import com.online.examination.entity.Configuration;
 import com.online.examination.entity.DeviceSession;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public UserDto saveUser(UserDto dto) {
 		if (this.isUserExist(dto)) {
-			throw new AlreadyExistException();
+			throw new AlreadyExistException(ErrorMessage.USER_ALREADY_EXIST);
 		}
 		this.checkRegistrationInfo(dto);
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public UserDto login(UserDto dto, String deviceId) {
 		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile()))){
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		
 		User user = userRepo.findByMobileOrEmail(dto.getEmail(), dto.getEmail());
@@ -92,19 +93,19 @@ public class UserServiceImpl implements UserService {
 			if(ObjectUtils.isNotEmpty(adminUser)) {
 				return adminUser;
 			}
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 
 		if (ObjectUtils.isEmpty(user.getIsActive()) || BooleanUtils.isFalse(user.getIsActive())) {
-			throw new InactiveUserException();
+			throw new InactiveUserException(ErrorMessage.INACTIVE_USER);
 		}
 
 		if (!user.getPassword().equals(PasswordUtility.encryptOrHashPassword(user.getUserId(), dto.getPassword(), user.getMobile()))) {
-			throw new InvalidPasswordException();
+			throw new InvalidPasswordException(ErrorMessage.INVALID_PASSWORD);
 		}
 		
 		if(StringUtils.isBlank(deviceId)) {
-			throw new InvalidArgumentException("Device id is not present");
+			throw new InvalidArgumentException(ErrorMessage.DEVICE_ID_EMPTY);
 		}
 		
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);
@@ -129,7 +130,7 @@ public class UserServiceImpl implements UserService {
 			
 			
 		} else if (!deviceSession.getDeviceId().equals(deviceId)) {
-			throw new UserAlredayLoggedInException();
+			throw new UserAlredayLoggedInException(ErrorMessage.USER_ALREADY_LOGGEDIN);
 		}
 
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -143,11 +144,11 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void resetPassword(UserDto dto) {
 		if(ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getPassword())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		User user = userRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(user)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		user.setPassword(dto.getPassword());
 		userRepo.save(user);
@@ -157,11 +158,11 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void enableDisableUser(UserDto dto) {
 		if (ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getIsActive())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		User user = userRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(user)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		user.setIsActive(dto.getIsActive());
 		userRepo.save(user);
@@ -194,7 +195,7 @@ public class UserServiceImpl implements UserService {
 
 	private void checkRegistrationInfo(UserDto dto) {
 	    if (ObjectUtils.isEmpty(dto)) {
-	        throw new InvalidArgumentException();
+	    	throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 	    }
 
 	    Map<String, String> fields = new LinkedHashMap<>();
@@ -227,18 +228,18 @@ public class UserServiceImpl implements UserService {
 	public void logOut(UserDto dto, String deviceId) {
 		
 		if(ObjectUtils.isEmpty(deviceId) || ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getUserId())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		
 		Optional<DeviceSession> deviceSessionContainer = deviceSessionRepo.findByDeviceIdAndUserId(deviceId, dto.getUserId());
 		if(deviceSessionContainer.isEmpty()) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		if(deviceSessionContainer.isPresent()) {
 			if(deviceSessionContainer.get().getIsActive()) {
 				deviceSessionRepo.delete(deviceSessionContainer.get());
 			}else {
-				throw new UserNotFoundException();
+				throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 			}
 		}
 		
@@ -247,15 +248,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void forceLogOutRequest(UserDto dto) {
 		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile()))){
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		User user = userRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(user)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 
 		if (ObjectUtils.isEmpty(user.getIsActive()) || BooleanUtils.isFalse(user.getIsActive())) {
-			throw new InactiveUserException();
+			throw new InactiveUserException(ErrorMessage.INACTIVE_USER);
 		}
 		
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);
@@ -356,7 +357,7 @@ public class UserServiceImpl implements UserService {
 		IpRateLimit ipRateLimit = ipRateLimitRepo.findByIpAddress(ipAddress);
 		if(ObjectUtils.isNotEmpty(ipRateLimit)) {
 			if(ipRateLimit.getLimitEndTime().isAfter(LocalDateTime.now())) {
-				throw new InvalidArgumentException();
+				throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 			}
 			
 			if(ipRateLimit.getFailCount()>=4) {

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.online.examination.constants.ErrorMessage;
 import com.online.examination.dto.UserDto;
 import com.online.examination.entity.Admin;
 import com.online.examination.entity.Configuration;
@@ -61,7 +62,7 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional
 	public UserDto saveUser(UserDto dto) {
 		if (this.isUserExist(dto)) {
-			throw new AlreadyExistException();
+			throw new AlreadyExistException(ErrorMessage.USER_ALREADY_EXIST);
 		}
 		this.checkRegistrationInfo(dto);
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -79,20 +80,20 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional
 	public UserDto login(UserDto dto) {
 		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile()))){
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		
 		Admin admin = adminRepo.findByMobileOrEmail(dto.getEmail(), dto.getEmail());
 		if (ObjectUtils.isEmpty(admin)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 
 		if (ObjectUtils.isEmpty(admin.getIsActive()) || BooleanUtils.isFalse(admin.getIsActive())) {
-			throw new InactiveUserException();
+			throw new InactiveUserException(ErrorMessage.INACTIVE_USER);
 		}
 
 		if (!admin.getPassword().equals(PasswordUtility.encryptOrHashPassword(admin.getUserId(), dto.getPassword(), admin.getMobile()))) {
-			throw new InvalidPasswordException();
+			throw new InvalidPasswordException(ErrorMessage.INVALID_PASSWORD);
 		}
 		
 
@@ -108,11 +109,11 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional
 	public void resetPassword(UserDto dto) {
 		if(ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getPassword())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		Admin admin = adminRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(admin)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		admin.setPassword(dto.getPassword());
 		adminRepo.save(admin);
@@ -122,11 +123,11 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional
 	public void enableDisableUser(UserDto dto) {
 		if (ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getIsActive())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		Admin admin = adminRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(admin)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		admin.setIsActive(dto.getIsActive());
 		adminRepo.save(admin);
@@ -159,7 +160,7 @@ public class AdminServiceImpl implements AdminService {
 
 	private void checkRegistrationInfo(UserDto dto) {
 	    if (ObjectUtils.isEmpty(dto)) {
-	        throw new InvalidArgumentException();
+	    	throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 	    }
 
 	    Map<String, String> fields = new LinkedHashMap<>();
@@ -191,18 +192,18 @@ public class AdminServiceImpl implements AdminService {
 	public void logOut(UserDto dto, String deviceId) {
 		
 		if(ObjectUtils.isEmpty(deviceId) || ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getUserId())) {
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		
 		Optional<DeviceSession> deviceSessionContainer = deviceSessionRepo.findByDeviceIdAndUserId(deviceId, dto.getUserId());
 		if(deviceSessionContainer.isEmpty()) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		if(deviceSessionContainer.isPresent()) {
 			if(deviceSessionContainer.get().getIsActive()) {
 				deviceSessionRepo.delete(deviceSessionContainer.get());
 			}else {
-				throw new UserNotFoundException();
+				throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 			}
 		}
 		
@@ -211,15 +212,15 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public void forceLogOutRequest(UserDto dto) {
 		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile()))){
-			throw new InvalidArgumentException();
+			throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 		}
 		Admin admin = adminRepo.findByMobileOrEmail(dto.getMobile(), dto.getEmail());
 		if (ObjectUtils.isEmpty(admin)) {
-			throw new UserNotFoundException();
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 
 		if (ObjectUtils.isEmpty(admin.getIsActive()) || BooleanUtils.isFalse(admin.getIsActive())) {
-			throw new InactiveUserException();
+			throw new InactiveUserException(ErrorMessage.INACTIVE_USER);
 		}
 		
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(admin.getUserId(), true);
@@ -320,7 +321,7 @@ public class AdminServiceImpl implements AdminService {
 		IpRateLimit ipRateLimit = ipRateLimitRepo.findByIpAddress(ipAddress);
 		if(ObjectUtils.isNotEmpty(ipRateLimit)) {
 			if(ipRateLimit.getLimitEndTime().isAfter(LocalDateTime.now())) {
-				throw new InvalidArgumentException();
+				throw new InvalidArgumentException(ErrorMessage.INVALID_ARGUMENT);
 			}
 			
 			if(ipRateLimit.getFailCount()>=4) {
