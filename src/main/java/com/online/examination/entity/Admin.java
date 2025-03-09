@@ -11,9 +11,9 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @Entity
-@Table(name = "student")
+@Table(name = "admin")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+public class Admin {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +24,6 @@ public class User {
 	String mobile;
 
 	String email;
-	
-	String batch;
 
 	String password;
 
