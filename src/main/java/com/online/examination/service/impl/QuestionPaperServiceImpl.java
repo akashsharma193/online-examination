@@ -46,7 +46,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 		questionPaper.setBatch(dto.getBatch());
 		questionPaper.setEndTime(dto.getEndTime());
 		questionPaper.setOrgCode(dto.getOrgCode());
-		questionPaper.setStratTime(dto.getStratTime());
+		questionPaper.setStartTime(dto.getStartTime());
 		questionPaper.setSubjectName(dto.getSubjectName());
 		questionPaper.setTeacherName(dto.getTeacherName());
 		questionPaper.setExamDuration(dto.getExamDuration());
@@ -95,7 +95,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 			
 			
 	        questionPaperList.stream()
-	            .filter(qp -> isTimeBetween(istDateTime.toLocalDateTime(), qp.getStratTime(), qp.getEndTime()))
+	            .filter(qp -> isTimeBetween(istDateTime.toLocalDateTime(), qp.getStartTime(), qp.getEndTime()))
 	            .forEach(qp -> dataList.add(convertEntityIntoDto(qp, false)));
 	    }
 
@@ -133,7 +133,7 @@ public class QuestionPaperServiceImpl implements QuestionPaperService {
 	    data.setEndTime(questionPaper.getEndTime());
 	    data.setOrgCode(questionPaper.getOrgCode());
 	    data.setQuestionList(tempMap);
-	    data.setStratTime(questionPaper.getStratTime());
+	    data.setStartTime(questionPaper.getStartTime());
 	    data.setSubjectName(questionPaper.getSubjectName());
 	    data.setTeacherName(questionPaper.getTeacherName());
 	    data.setQuestionId(questionPaper.getQuestionId());

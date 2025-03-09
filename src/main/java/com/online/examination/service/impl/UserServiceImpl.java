@@ -31,6 +31,7 @@ import com.online.examination.exception.UserNotFoundException;
 import com.online.examination.repository.DeviceSessionRepo;
 import com.online.examination.repository.IpRateLimitRepo;
 import com.online.examination.repository.UserRepo;
+import com.online.examination.service.AdminService;
 import com.online.examination.service.ConfigurationService;
 import com.online.examination.service.UserService;
 import com.online.examination.utility.MailUtils;
@@ -56,6 +57,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private IpRateLimitRepo ipRateLimitRepo;
+	
+	@Autowired
+	private AdminService adminService;
 
 	@Override
 	@Transactional
@@ -78,12 +82,16 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public UserDto login(UserDto dto, String deviceId) {
-		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile())) || StringUtils.isBlank(deviceId)){
+		if(ObjectUtils.isEmpty(dto) || (ObjectUtils.isEmpty(dto.getEmail()) && ObjectUtils.isEmpty(dto.getMobile()))){
 			throw new InvalidArgumentException();
 		}
 		
 		User user = userRepo.findByMobileOrEmail(dto.getEmail(), dto.getEmail());
 		if (ObjectUtils.isEmpty(user)) {
+			UserDto adminUser = adminService.login(dto);
+			if(ObjectUtils.isNotEmpty(adminUser)) {
+				return adminUser;
+			}
 			throw new UserNotFoundException();
 		}
 
@@ -93,6 +101,10 @@ public class UserServiceImpl implements UserService {
 
 		if (!user.getPassword().equals(PasswordUtility.encryptOrHashPassword(user.getUserId(), dto.getPassword(), user.getMobile()))) {
 			throw new InvalidPasswordException();
+		}
+		
+		if(StringUtils.isBlank(deviceId)) {
+			throw new InvalidArgumentException("Device id is not present");
 		}
 		
 		DeviceSession deviceSession = deviceSessionRepo.findByUserIdAndIsActive(user.getUserId(), true);

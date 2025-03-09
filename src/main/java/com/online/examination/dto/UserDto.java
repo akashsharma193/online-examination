@@ -22,6 +22,8 @@ public class UserDto {
 	
 	String userId;
 	
+	Boolean isAdmin;
+	
 	Boolean isActive;
 	
 }
