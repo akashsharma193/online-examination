@@ -173,6 +173,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		finalResultDto.setCorrectAnswer(correct);
 		finalResultDto.setIncorrectAnswer(incorrect);
 		finalResultDto.setTotalMarks(answerPaperDto.getAnswerPaper().size() - incorrect);
+		finalResultDto.setUnAttempted(unattempted);
 
 		return finalResultDto;
 		
