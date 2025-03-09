@@ -99,6 +99,7 @@ public class AdminServiceImpl implements AdminService {
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		dto = mapper.convertValue(admin, UserDto.class);
 		dto.setPassword(null);
+		dto.setIsAdmin(true);
 		return dto;
 
 	}

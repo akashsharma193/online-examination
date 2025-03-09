@@ -48,7 +48,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		answerPaper.setBatch(questionPaper.getBatch());
 		answerPaper.setEndTime(questionPaper.getEndTime());
 		answerPaper.setOrgCode(questionPaper.getOrgCode());
-		answerPaper.setStratTime(questionPaper.getStratTime());
+		answerPaper.setStartTime(questionPaper.getStartTime());
 		answerPaper.setSubjectName(questionPaper.getSubjectName());
 		answerPaper.setTeacherName(questionPaper.getTeacherName());
 		answerPaper.setQuestionId(dto.getQuestionId());
@@ -97,7 +97,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		data.setBatch(answerPaper.getBatch());
 		data.setEndTime(answerPaper.getEndTime());
 		data.setOrgCode(answerPaper.getOrgCode());
-		data.setStratTime(answerPaper.getStratTime());
+		data.setStartTime(answerPaper.getStartTime());
 		data.setSubjectName(answerPaper.getSubjectName());
 		data.setTeacherName(answerPaper.getTeacherName());
 		data.setQuestionId(answerPaper.getQuestionId());
@@ -125,7 +125,7 @@ public class AnswerPaperServiceImpl implements AnswerPaperService {
 		data.setEndTime(answerPaper.getEndTime());
 		data.setOrgCode(answerPaper.getOrgCode());
 		data.setAnswerPaper(questionList);
-		data.setStratTime(answerPaper.getStratTime());
+		data.setStartTime(answerPaper.getStartTime());
 		data.setSubjectName(answerPaper.getSubjectName());
 		data.setTeacherName(answerPaper.getTeacherName());
 
