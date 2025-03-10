@@ -31,10 +31,10 @@ public class QuestionPaperDto {
 	
 	String examDuration;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	LocalDateTime startTime;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	LocalDateTime endTime;
 	
 }

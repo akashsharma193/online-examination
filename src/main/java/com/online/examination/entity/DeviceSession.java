@@ -37,7 +37,7 @@ public class DeviceSession {
 	
 	String sessionId;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	LocalDateTime lastLoginTime;
 
 }
