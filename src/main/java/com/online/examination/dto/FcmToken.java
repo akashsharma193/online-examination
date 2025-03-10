@@ -6,9 +6,9 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class HtmToken {
+public class FcmToken {
 
-	String htmToken;
+	String fcmToken;
 	
 	String userId;
 }

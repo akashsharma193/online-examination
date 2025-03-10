@@ -3,7 +3,6 @@ package com.online.examination.service.impl;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.constants.ErrorMessage;
-import com.online.examination.dto.HtmToken;
+import com.online.examination.dto.FcmToken;
 import com.online.examination.dto.UserDto;
 import com.online.examination.entity.Configuration;
 import com.online.examination.entity.DeviceSession;
@@ -382,12 +381,12 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public void saveHtmToken(HtmToken dto) {
+	public void saveFcmToken(FcmToken dto) {
 		
-		if (ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getHtmToken()) || ObjectUtils.isEmpty(dto.getUserId())) {
+		if (ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getFcmToken()) || ObjectUtils.isEmpty(dto.getUserId())) {
 		    throw new InvalidArgumentException(
 		        ObjectUtils.isEmpty(dto) ? null :
-		        ObjectUtils.isEmpty(dto.getHtmToken()) ? ErrorMessage.HTM_TOKEN_IS_EMPTY :
+		        ObjectUtils.isEmpty(dto.getFcmToken()) ? ErrorMessage.HTM_TOKEN_IS_EMPTY :
 		        ErrorMessage.USER_ID_IS_EMPTY
 		    );
 		}
@@ -398,7 +397,7 @@ public class UserServiceImpl implements UserService {
 			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
 		}
 		
-		user.setHtmToken(dto.getHtmToken());
+		user.setFcmToken(dto.getFcmToken());
 		userRepo.save(user);
 		
 	}
