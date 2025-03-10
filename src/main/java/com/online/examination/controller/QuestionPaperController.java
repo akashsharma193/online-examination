@@ -13,8 +13,6 @@ import com.online.examination.dto.QuestionPaperDto;
 import com.online.examination.response.Response;
 import com.online.examination.service.QuestionPaperService;
 
-import jakarta.validation.Valid;
-
 
 @CrossOrigin
 @RestController
@@ -25,7 +23,7 @@ public class QuestionPaperController {
 	private QuestionPaperService questionPaperService;
 
 	@PostMapping("createQuestionPaper")
-	public ResponseEntity<Response> createQuestionPaper(@Valid @RequestBody QuestionPaperDto dto) {
+	public ResponseEntity<Response> createQuestionPaper(@RequestBody QuestionPaperDto dto) {
 		Response response = new Response();
 		response.setData(questionPaperService.createQuestionPaper(dto));
 		response.succeed();
