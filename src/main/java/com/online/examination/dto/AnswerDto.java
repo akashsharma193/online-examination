@@ -18,7 +18,7 @@ public class AnswerDto {
 	
 	String question;
 
-	List<String> option;
+	List<String> options;
 	
 	String correctAnswer;
 	
