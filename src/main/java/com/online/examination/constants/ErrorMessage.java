@@ -26,6 +26,12 @@ public final class ErrorMessage {
 	/** The Constant ROLE_USER. */
 	public static final String USER_ALREADY_LOGGEDIN = "User id Alreday loggedin.";
 	
+	/** The Constant ROLE_USER. */
+	public static final String HTM_TOKEN_IS_EMPTY = "HTM token can not be empty.";
+	
+	/** The Constant ROLE_USER. */
+	public static final String USER_ID_IS_EMPTY = "User id can not be empty.";
+	
 	
 	
 	

@@ -1,5 +1,6 @@
 package com.online.examination.service;
 
+import com.online.examination.dto.HtmToken;
 import com.online.examination.dto.UserDto;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,5 +24,7 @@ public interface UserService {
 	String activateUser(String userId);
 
 	UserDto checkLoggedInUser(String deviceId, HttpServletRequest request);
+
+	void saveHtmToken(HtmToken dto);
 
 }
