@@ -72,7 +72,7 @@ public class UserController {
 		return ResponseEntity.ok().body(response);
 	}
 	
-	@PostMapping("saveHtmToken")
+	@PostMapping("saveFcmToken")
 	public ResponseEntity<Response> saveHtmToken(@RequestBody HtmToken dto) {
 		Response response = new Response();
 		response.succeed();
