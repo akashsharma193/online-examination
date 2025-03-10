@@ -35,7 +35,7 @@ public class User {
 	String userId;
 	
 	@Column(columnDefinition = "TEXT")
-	String htmToken;
+	String fcmToken;
 	
 	Boolean isActive;
 
