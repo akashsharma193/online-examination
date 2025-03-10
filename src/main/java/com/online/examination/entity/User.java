@@ -1,5 +1,6 @@
 package com.online.examination.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +33,9 @@ public class User {
 	String orgCode;
 	
 	String userId;
+	
+	@Column(columnDefinition = "TEXT")
+	String htmToken;
 	
 	Boolean isActive;
 

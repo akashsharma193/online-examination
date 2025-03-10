@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.online.examination.dto.HtmToken;
 import com.online.examination.dto.UserDto;
 import com.online.examination.response.Response;
 import com.online.examination.service.UserService;
@@ -71,6 +72,13 @@ public class UserController {
 		return ResponseEntity.ok().body(response);
 	}
 	
+	@PostMapping("saveHtmToken")
+	public ResponseEntity<Response> saveHtmToken(@RequestBody HtmToken dto) {
+		Response response = new Response();
+		response.succeed();
+		userService.saveHtmToken(dto);
+		return ResponseEntity.ok().body(response);
+	}
 	
 	
 }

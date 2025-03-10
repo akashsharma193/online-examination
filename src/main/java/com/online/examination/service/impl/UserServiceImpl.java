@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.online.examination.constants.ErrorMessage;
+import com.online.examination.dto.HtmToken;
 import com.online.examination.dto.UserDto;
 import com.online.examination.entity.Configuration;
 import com.online.examination.entity.DeviceSession;
@@ -376,6 +377,29 @@ public class UserServiceImpl implements UserService {
 			ipRateLimitRepo.save(ipRateLimitObj);
 		}
 		
+		
+	}
+
+	@Transactional
+	@Override
+	public void saveHtmToken(HtmToken dto) {
+		
+		if (ObjectUtils.isEmpty(dto) || ObjectUtils.isEmpty(dto.getHtmToken()) || ObjectUtils.isEmpty(dto.getUserId())) {
+		    throw new InvalidArgumentException(
+		        ObjectUtils.isEmpty(dto) ? null :
+		        ObjectUtils.isEmpty(dto.getHtmToken()) ? ErrorMessage.HTM_TOKEN_IS_EMPTY :
+		        ErrorMessage.USER_ID_IS_EMPTY
+		    );
+		}
+		
+		User user = userRepo.findByUserId(dto.getUserId());
+		
+		if(ObjectUtils.isEmpty(user)) {
+			throw new UserNotFoundException(ErrorMessage.USER_NOT_FOUND);
+		}
+		
+		user.setHtmToken(dto.getHtmToken());
+		userRepo.save(user);
 		
 	}
 
